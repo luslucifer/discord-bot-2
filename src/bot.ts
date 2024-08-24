@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits, Message } from 'discord.js';
 import dotenv from 'dotenv';
-import { P } from './p';
+import { P } from './x';
 dotenv.config();
 
 const token = process.env.BOTTOKEN;

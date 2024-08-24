@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const dotenv_1 = __importDefault(require("dotenv"));
-const p_1 = require("./p");
+const x_1 = require("./x");
 dotenv_1.default.config();
 const token = process.env.BOTTOKEN;
 const client = new discord_js_1.Client({
@@ -36,7 +36,7 @@ client.on('messageCreate', (message) => __awaiter(void 0, void 0, void 0, functi
         const match = mContent.match(re);
         if (match) {
             const url = new URL(match[0]);
-            const p = new p_1.P();
+            const p = new x_1.P();
             const u = yield p.p(url.origin);
             message.channel.send(u);
         }
