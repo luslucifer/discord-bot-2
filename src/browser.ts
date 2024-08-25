@@ -4,8 +4,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const home = 'https://creators.joinmavely.com/home';
+const loginUrl = 'https://creators.joinmavely.com/auth/login';
 
-export class P {
+export class Browse {
     private password: string | any;
     private email: string | any;
 
@@ -14,11 +15,10 @@ export class P {
         this.email = process.env.EMAIL;
     }
 
-    async p(link: string): Promise<string> {
+    async main(link: string): Promise<string> {
         const cookiesFilePath = 'cookies.json';
         const browser: Browser = await chromium.launch({
-            headless: true,
-            args: ['--no-sandbox'],
+            headless: false,
         });
         const page: Page = await browser.newPage();
 
@@ -27,9 +27,17 @@ export class P {
             if (previousSession) {
                 const cookies = JSON.parse(fs.readFileSync(cookiesFilePath, 'utf-8'));
                 await page.context().addCookies(cookies);
-            } else {
-                await this.login(page);
             }
+
+            // Listen for page navigation
+            page.on('framenavigated', async (frame) => {
+                if (frame.url() === loginUrl) {
+                    console.log('Redirected to login page, attempting to log in...');
+                    await this.login(page);
+                    await page.goto(home, { waitUntil: 'networkidle' });
+                }
+            });
+
             await page.goto(home, { waitUntil: 'networkidle' });
 
             const urlCompact = await page.$('input[placeholder="Enter URL to create a link"]');
@@ -60,6 +68,7 @@ export class P {
             return finalLink;
 
         } catch (error) {
+            console.log('error in headless browser ')
             console.error(error);
             return '';
         } finally {
@@ -102,4 +111,4 @@ export class P {
 }
 
 const link = 'https://www.walmart.com/';
-new P().p(link).then((result) => console.log(result));
+new Browse().main(link).then((result) => console.log(result));

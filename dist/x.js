@@ -18,6 +18,7 @@ const fs_1 = __importDefault(require("fs"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const home = 'https://creators.joinmavely.com/home';
+const loginUrl = 'https://creators.joinmavely.com/auth/login';
 class P {
     constructor() {
         this.password = process.env.PASSWORD;
@@ -28,7 +29,6 @@ class P {
             const cookiesFilePath = 'cookies.json';
             const browser = yield playwright_1.chromium.launch({
                 headless: true,
-                args: ['--no-sandbox'],
             });
             const page = yield browser.newPage();
             try {
@@ -37,9 +37,14 @@ class P {
                     const cookies = JSON.parse(fs_1.default.readFileSync(cookiesFilePath, 'utf-8'));
                     yield page.context().addCookies(cookies);
                 }
-                else {
-                    yield this.login(page);
-                }
+                // Listen for page navigation
+                page.on('framenavigated', (frame) => __awaiter(this, void 0, void 0, function* () {
+                    if (frame.url() === loginUrl) {
+                        console.log('Redirected to login page, attempting to log in...');
+                        yield this.login(page);
+                        yield page.goto(home, { waitUntil: 'networkidle' });
+                    }
+                }));
                 yield page.goto(home, { waitUntil: 'networkidle' });
                 const urlCompact = yield page.$('input[placeholder="Enter URL to create a link"]');
                 if (urlCompact) {
@@ -111,5 +116,5 @@ class P {
     }
 }
 exports.P = P;
-const link = 'https://www.walmart.com/';
-new P().p(link).then((result) => console.log(result));
+// const link = 'https://www.walmart.com/';
+// new P().p(link).then((result) => console.log(result));
