@@ -1,6 +1,7 @@
 import { chromium, Browser, Page } from 'playwright';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import { url } from 'inspector';
 dotenv.config();
 
 const home = 'https://creators.joinmavely.com/home';
@@ -70,7 +71,8 @@ export class Browse {
         } catch (error) {
             console.log('error in headless browser ')
             console.error(error);
-            return '';
+            const r = await this.main(link)
+            return r;
         } finally {
             await browser.close();
         }
@@ -109,6 +111,7 @@ export class Browse {
         }
     }
 }
+
 
 const link = 'https://www.walmart.com/';
 new Browse().main(link).then((result) => console.log(result));

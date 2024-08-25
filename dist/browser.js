@@ -28,7 +28,7 @@ class Browse {
         return __awaiter(this, void 0, void 0, function* () {
             const cookiesFilePath = 'cookies.json';
             const browser = yield playwright_1.chromium.launch({
-                headless: true,
+                headless: false,
             });
             const page = yield browser.newPage();
             try {
@@ -74,7 +74,8 @@ class Browse {
             catch (error) {
                 console.log('error in headless browser ');
                 console.error(error);
-                return '';
+                const r = yield this.main(link);
+                return r;
             }
             finally {
                 yield browser.close();
@@ -117,5 +118,5 @@ class Browse {
     }
 }
 exports.Browse = Browse;
-// const link = 'https://www.walmart.com/';
-// new P().p(link).then((result) => console.log(result));
+const link = 'https://www.walmart.com/';
+new Browse().main(link).then((result) => console.log(result));
